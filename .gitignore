@@ -1,0 +1,46 @@
+# Python bytecode files
+.env
+*.pyc
+*.pyo
+__pycache__/
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# IDEs and editors
+.idea/
+.vscode/
+
+# MacOS system files
+.DS_Store
+
+# Windows system files
+Thumbs.db
+
+# Logs
+*.log
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# VSCode settings
+.vscode/
+
+# Database files (if applicable)
+*.sqlite
+*.db
+
+# pytest cache
+.cache/
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+
+# Docker
+*.dockerignore
+
+# pipenv
+Pipfile.lock

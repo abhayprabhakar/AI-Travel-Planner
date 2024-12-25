@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Travel Planner</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+        rel="stylesheet">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+    <div class="container mt-5">
+        <h1>AI Travel Planner</h1>
+        <form id="travel-form" class="travel-form">
+            <div class="mb-3">
+                <label for="query" class="form-label">Travel Query</label>
+                <textarea id="query" class="form-control" rows="3"
+                    placeholder="Enter your travel query (e.g., 'Plan a trip from New York to Paris for 5 days starting Jan 1')"></textarea>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Generate Plan <span id="loading-text" style="display: none;">(Loading...)</span></button>
+            </div>
+        </form>
+
+        <div id="results" class="mt-4 results" style="display: none;">
+            <h3>Results</h3>
+            <div id="itinerary" class="mb-3 itinerary"></div>
+            <div id="recommendations" class="recommendations"></div>
+        </div>
+
+        <div id="loading-overlay" class="loading-overlay" style="display: none;">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/marked@3.0.7/marked.min.js"></script>
+    <script>
+        document.getElementById('travel-form').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const query = document.getElementById('query').value;
+            const resultsDiv = document.getElementById('results');
+            const itineraryDiv = document.getElementById('itinerary');
+            const recommendationsDiv = document.getElementById('recommendations');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+
+            resultsDiv.style.display = 'none';
+            itineraryDiv.innerHTML = '';
+            recommendationsDiv.innerHTML = '';
+
+            // Show loading indicator
+            loadingOverlay.style.display = 'flex';
+            loadingText.style.display = 'inline';
+
+            try {
+                const response = await fetch('http://localhost:5000/travel', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        query
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    const itineraryHtml = marked(data.itinerary);
+                    const recommendationsHtml = marked(data.recommendations);
+
+                    itineraryDiv.innerHTML = `<h5>Itinerary:</h5>${itineraryHtml}`;
+                    recommendationsDiv.innerHTML = `<h5>Recommendations:</h5>${recommendationsHtml}`;
+                    resultsDiv.style.display = 'block';
+                } else {
+                    alert(data.error || 'An error occurred while generating the travel plan.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Failed to connect to server. Please try again later.');
+            } finally {
+                // Hide loading indicator regardless of success or failure
+                loadingOverlay.style.display = 'none';
+                loadingText.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+
+</html>
